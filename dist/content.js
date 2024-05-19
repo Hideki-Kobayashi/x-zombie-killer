@@ -300,43 +300,42 @@ class TwitterFilter {
     return this.japaneseRegex.test(authorName)
   }
 
-  handleDuplicateTweets(tweet, tweetTextContent) {
-    if (this.options.duplicatePostsFilter) {
-      const tweetAuthorID = this.getAuthorID(tweet)
-
-      if (this.tweetData.duplicateTexts.has(tweetTextContent)) {
-        const firstAuthorID =
-          this.tweetData.duplicateTexts.get(tweetTextContent)
-        if (tweetAuthorID !== firstAuthorID) {
-          tweet.style.display = "none"
-          this.hiddenTweetsCount++
-        }
-      } else {
-        this.tweetData.duplicateTexts.set(tweetTextContent, tweetAuthorID)
-      }
-    }
-  }
-
-  // handleMultipleReplies(tweet) {
-  //   if (
-  //     this.options.multipleRepliesFilter &&
-  //     this.isConversationTimeline([tweet])
-  //   ) {
-  //     if (this.isAuthorTweet(tweet)) {
-  //       return
-  //     }
-
+  // handleDuplicateTweets(tweet, tweetTextContent) {
+  //   if (this.options.duplicatePostsFilter) {
   //     const tweetAuthorID = this.getAuthorID(tweet)
-  //     if (this.tweetData.originalAuthorID !== tweetAuthorID) {
-  //       const count = this.tweetData.replyCounts.get(tweetAuthorID) || 0
-  //       this.tweetData.replyCounts.set(tweetAuthorID, count + 1)
-  //       if (this.tweetData.replyCounts.get(tweetAuthorID) > 1) {
+
+  //     if (this.tweetData.duplicateTexts.has(tweetTextContent)) {
+  //       const firstAuthorID =
+  //         this.tweetData.duplicateTexts.get(tweetTextContent)
+  //       if (tweetAuthorID !== firstAuthorID) {
   //         tweet.style.display = "none"
   //         this.hiddenTweetsCount++
   //       }
+  //     } else {
+  //       this.tweetData.duplicateTexts.set(tweetTextContent, tweetAuthorID)
   //     }
   //   }
   // }
+  handleDuplicateTweets(tweet, tweetTextContent) {
+    if (this.options.duplicatePostsFilter) {
+      const tweetAuthorID = this.getAuthorID(tweet)
+      const cleanedTextContent = this.removeHashtags(tweetTextContent)
+
+      let isSimilar = false
+      for (let [text, authorID] of this.tweetData.duplicateTexts.entries()) {
+        if (this.computeJaccardSimilarity(text, cleanedTextContent) > 0.3) {
+          isSimilar = true
+          break
+        }
+      }
+      if (isSimilar) {
+        tweet.style.display = "none"
+        this.hiddenTweetsCount++
+      } else {
+        this.tweetData.duplicateTexts.set(cleanedTextContent, tweetAuthorID)
+      }
+    }
+  }
 
   isAuthorTweet(tweet) {
     return tweet.textContent.includes(`@${this.tweetData.originalAuthorID}`)
@@ -421,6 +420,20 @@ class TwitterFilter {
       })
       document.body.appendChild(this.optionsLinkElement)
     }
+  }
+
+  computeJaccardSimilarity(text1, text2) {
+    const set1 = new Set(text1.split(/\s+/))
+    const set2 = new Set(text2.split(/\s+/))
+    const intersection = new Set([...set1].filter((x) => set2.has(x)))
+    const union = new Set([...set1, ...set2])
+    const similarity = intersection.size / union.size
+
+    return similarity
+  }
+
+  removeHashtags(text) {
+    return text.replace(/#[\w一-龠ぁ-ゔァ-ヴー々〆〤]+/g, "").trim()
   }
 }
 
