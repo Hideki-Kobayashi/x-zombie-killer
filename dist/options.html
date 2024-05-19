@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Twitter Filter Options</title>
+    <style>
+      body * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      .Main {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+
+      .status {
+        display: none;
+        margin-top: 10px;
+        padding: 5px;
+        border-radius: 5px;
+      }
+      .success {
+        display: block;
+        background-color: #4caf50;
+        color: white;
+      }
+      .failure {
+        display: block;
+        background-color: #f44336;
+        color: white;
+      }
+
+      .DonateButton {
+        margin: auto;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .DonateButton:hover {
+        background-color: #45a049;
+      }
+
+      .Content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .SettingButtons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .SettingButton {
+        flex: 1;
+      }
+
+      .Options {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .Option {
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+        cursor: pointer;
+      }
+
+      .Option:hover {
+        opacity: 0.6;
+      }
+
+      .Option-Input {
+        margin-top: 2px;
+      }
+
+      .Option-Text {
+      }
+
+      .SaveButton {
+        display: block;
+        width: 100%;
+        margin: auto;
+        padding: 10px 20px;
+        border-radius: 5px;
+        border-width: 1px;
+        cursor: pointer;
+      }
+
+      .SaveButton:hover {
+        opacity: 0.6;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="Main">
+      <h1>オプション</h1>
+      <!-- 作者に投げ銭をするボタン。　URLはhttps://buy.stripe.com/5kA03X0HTcMaeYg008 -->
+      <a
+        href="https://buy.stripe.com/5kA03X0HTcMaeYg008"
+        target="_blank"
+        class="DonateButton"
+        >【投げ銭】さらにゾンビを倒すため作者にコーヒーを奢る</a
+      >
+      <section class="Content">
+        <p>
+          どの設定も、非常に広範囲かつ強力に投稿を非表示にします。本当は表示したかった投稿も非表示になる可能性があるので注意して設定を行ってください。<br />
+          どれを選んだらいいかわからない方は、以下の3つのボタンから選んでください。
+        </p>
+        <div class="SettingButtons">
+          <button class="SettingButton" id="Level1">基本</button>
+          <button class="SettingButton" id="Level2">おすすめ</button>
+          <button class="SettingButton" id="Level3">最強</button>
+        </div>
+        <div id="options" class="Options">
+          <label class="Option">
+            <input
+              class="Option-Input"
+              type="checkbox"
+              id="allowedCharactersFilter"
+            />
+            <span class="Option-Text"
+              >投稿文に日本語と英語と記号以外を含むものを全て非表示にする</span
+            >
+          </label>
+
+          <label class="Option">
+            <input
+              class="Option-Input"
+              type="checkbox"
+              id="duplicatePostsFilter"
+            />
+            <span class="Option-Text">コピペ投稿を非表示にする</span>
+          </label>
+
+          <!-- <label>
+            <input type="checkbox" id="multipleRepliesFilter" />
+            ある投稿に対して複数リプライしているアカウントを非表示にする
+          </label>
+          <br /> -->
+          <label class="Option">
+            <input
+              class="Option-Input"
+              type="checkbox"
+              id="japaneseNameFilter"
+            />
+            <span class="Option-Text"
+              >アカウント名に日本語を含まない投稿を非表示にする</span
+            >
+          </label>
+          <label class="Option">
+            <input
+              class="Option-Input"
+              type="checkbox"
+              id="excludeNonJapaneseFilter"
+            />
+            <span class="Option-Text"
+              >位置情報を使って検索結果から日本国外の投稿を除外する</span
+            >
+          </label>
+          <br />
+          <button id="saveButton" class="SaveButton">設定を保存する</button>
+          <div id="status" class="status"></div>
+        </div>
+      </section>
+    </main>
+    <script src="./options.js"></script>
+  </body>
+</html>
