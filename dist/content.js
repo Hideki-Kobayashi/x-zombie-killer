@@ -188,6 +188,10 @@ class TwitterFilter {
   }
 
   hidePosts() {
+    if (this.isExcludedUrl()) {
+      console.log("Excluded URL, no action taken.")
+      return
+    }
     this.resetTweetData()
     this.hiddenTweetsCount = 0 // カウンターをリセット
     try {
@@ -300,39 +304,34 @@ class TwitterFilter {
     return this.japaneseRegex.test(authorName)
   }
 
-  // handleDuplicateTweets(tweet, tweetTextContent) {
-  //   if (this.options.duplicatePostsFilter) {
-  //     const tweetAuthorID = this.getAuthorID(tweet)
-
-  //     if (this.tweetData.duplicateTexts.has(tweetTextContent)) {
-  //       const firstAuthorID =
-  //         this.tweetData.duplicateTexts.get(tweetTextContent)
-  //       if (tweetAuthorID !== firstAuthorID) {
-  //         tweet.style.display = "none"
-  //         this.hiddenTweetsCount++
-  //       }
-  //     } else {
-  //       this.tweetData.duplicateTexts.set(tweetTextContent, tweetAuthorID)
-  //     }
-  //   }
-  // }
   handleDuplicateTweets(tweet, tweetTextContent) {
     if (this.options.duplicatePostsFilter) {
       const tweetAuthorID = this.getAuthorID(tweet)
       const cleanedTextContent = this.removeHashtags(tweetTextContent)
 
+      let originalTweet = null
       let isSimilar = false
-      for (let [text, authorID] of this.tweetData.duplicateTexts.entries()) {
+
+      for (let [text, data] of this.tweetData.duplicateTexts.entries()) {
         if (this.computeJaccardSimilarity(text, cleanedTextContent) > 0.3) {
           isSimilar = true
+          originalTweet = data.tweet
           break
         }
       }
+
       if (isSimilar) {
         tweet.style.display = "none"
         this.hiddenTweetsCount++
+        if (originalTweet) {
+          originalTweet.style.display = "none"
+          this.hiddenTweetsCount++
+        }
       } else {
-        this.tweetData.duplicateTexts.set(cleanedTextContent, tweetAuthorID)
+        this.tweetData.duplicateTexts.set(cleanedTextContent, {
+          authorID: tweetAuthorID,
+          tweet: tweet,
+        })
       }
     }
   }
@@ -434,6 +433,14 @@ class TwitterFilter {
 
   removeHashtags(text) {
     return text.replace(/#[\w一-龠ぁ-ゔァ-ヴー々〆〤]+/g, "").trim()
+  }
+
+  isExcludedUrl() {
+    const excludedPaths = ["/home", "notifications"]
+    const currentUrl = location.href
+    const urlObj = new URL(currentUrl)
+
+    return excludedPaths.some((path) => urlObj.pathname.startsWith(path))
   }
 }
 
